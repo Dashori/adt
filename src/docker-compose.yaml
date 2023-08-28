@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: ./app
+      dockerfile: Dockerfile.dev
+    container_name: adt-backend
+    ports:
+      - 8080:8080
+    networks:
+      - mynetwork
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile.dev
+    container_name: adt-nginx
+    networks:
+      - mynetwork
+    ports:
+      - 80:80
+    depends_on:
+      - backend
+
+
+networks:
+  mynetwork:

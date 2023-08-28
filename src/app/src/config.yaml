@@ -1,0 +1,12 @@
+logLevel: info
+
+backend:
+  adress: "172.20.0.2"
+  port: "8080"
+
+redis:
+  port: 6379
+  user: 'dashori'
+  password: 'redis_password'
+
+
