@@ -1,40 +1,37 @@
 package server
 
 import (
+	redisrepo "app/internal/repo"
+	controllers "app/internal/server/controllers"
+	middlewares "app/internal/server/middlewares"
+	flags "app/src/flags"
 	"github.com/gin-gonic/gin"
-	"net/http"
+	"log"
+	"time"
 )
 
-func getAllDoctors(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"test": "pass"})
-}
+var (
+	redisRepo redisrepo.RedisRepository
+)
 
-func getKey(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"get key": "ok"})
-}
+func SetupServer(options *flags.RedisFlags) *gin.Engine {
+	redisClient, err := flags.NewRedisClient(options)
 
-func setKey(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"set key": "ok"})
-}
+	if err != nil {
+		log.Fatalf("failed to create redis client, error is: %s", err)
+	}
 
-func delKey(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"del key": "ok"})
-}
-
-func SetupServer() *gin.Engine {
+	redisRepo = redisrepo.NewRedisRepo(*redisClient, 1*time.Hour)
 
 	router := gin.Default()
 
-	api := router.Group("/api/v2")
-	{
-		api.GET("/test", getAllDoctors)
-	}
+	router.Use(middlewares.RedisRepo(redisRepo))
 
 	redisApi := router.Group("/")
 	{
-		redisApi.GET("/get_key", getKey)
-		redisApi.GET("/set_key", setKey)
-		redisApi.GET("/del_key", delKey)
+		redisApi.GET("/get_key", controllers.GetKey)
+		redisApi.POST("/set_key", controllers.SetKey)
+		redisApi.DELETE("/del_key", controllers.DelKey)
 	}
 
 	return router

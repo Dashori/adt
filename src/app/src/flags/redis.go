@@ -2,12 +2,11 @@ package flags
 
 import (
 	"context"
-	"sync"
-	"github.com/redis/go-redis/v9"
 	"fmt"
+	"github.com/redis/go-redis/v9"
+	"sync"
 	"time"
 )
-
 
 type RedisFlags struct {
 	Host     string `yaml:"host"`
@@ -63,4 +62,8 @@ func (rc *RedisClient) Set(ctx context.Context, key string, value interface{}, e
 
 func (rc *RedisClient) Get(ctx context.Context, key string) ([]byte, error) {
 	return rc.Client.Get(ctx, key).Bytes()
+}
+
+func (rc *RedisClient) Del(ctx context.Context, key string) error {
+	return rc.Client.Del(ctx, key).Err()
 }
