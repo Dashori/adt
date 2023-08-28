@@ -1,6 +1,16 @@
 version: "3.8"
 
 services:
+  redis:
+    build:
+      context: ./redis
+      dockerfile: Dockerfile.dev
+    container_name: adt-redis
+    ports:
+      - 6379:6379
+    networks:
+      - mynetwork
+  
   backend:
     build:
       context: ./app
@@ -10,6 +20,8 @@ services:
       - 8080:8080
     networks:
       - mynetwork
+    depends_on:
+      - redis
 
   nginx:
     build:
@@ -19,9 +31,10 @@ services:
     networks:
       - mynetwork
     ports:
-      - 80:80
+      - 80:8089
     depends_on:
       - backend
+      - redis
 
 
 networks:

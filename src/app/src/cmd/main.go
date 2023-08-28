@@ -2,26 +2,17 @@ package main
 
 import (
 	server "app/internal/server"
+	flags "app/src/flags"
 	"fmt"
 	"github.com/spf13/viper"
+	"context"
+	"time"
 	// "log"
 )
 
-type RedisParams struct {
-	Port     int
-	User     string
-	Password string
-}
-
-type BackendParams struct {
-	Adress string
-	Port   string
-}
-
 type Config struct {
-	Loglevel string        `yaml:"logLevel"`
-	Redis    RedisParams   `yaml:"redis"`
-	Backend  BackendParams `yaml:"backend"`
+	Loglevel string       `yaml:"logLevel"`
+	Redis    *flags.RedisFlags   `yaml:"redis"`
 }
 
 func main() {
@@ -42,18 +33,32 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Printf("Hello world!")
-
 	fmt.Println(conf.Loglevel)
-	fmt.Println(conf.Redis.User)
-	fmt.Println(conf.Redis.Port)
-	fmt.Println(conf.Redis.Password)
+
 	fmt.Println(conf.Redis)
 
-	port := conf.Backend.Port
-	adress := conf.Backend.Adress
 
-	fmt.Println(adress, " ", port)
+	client, err := flags.NewRedisClient(conf.Redis)
 
-	server.SetupServer().Run(adress + ":" + port)
+	if err != nil {
+		panic(err)
+	}
+
+	err = client.Set(context.TODO(), "key", "dasha", 1*time.Minute)
+
+	if err != nil {
+		panic(err)
+	}
+
+	ans, err := client.Get(context.TODO(), "key")
+
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(string(ans[:]))
+
+
+	server.SetupServer().Run()
+
 }
