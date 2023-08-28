@@ -4,7 +4,7 @@ services:
   redis:
     build:
       context: ./redis
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     container_name: adt-redis
     ports:
       - 6379:6379
@@ -14,10 +14,8 @@ services:
   backend:
     build:
       context: ./app
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     container_name: adt-backend
-    ports:
-      - 8080:8080
     networks:
       - mynetwork
     depends_on:
@@ -26,12 +24,12 @@ services:
   nginx:
     build:
       context: ./nginx
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     container_name: adt-nginx
     networks:
       - mynetwork
     ports:
-      - 80:8089
+      - 8089:80
     depends_on:
       - backend
       - redis
