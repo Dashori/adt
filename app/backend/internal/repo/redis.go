@@ -1,7 +1,7 @@
 package redisrepo
 
 import (
-	flags "app/src/flags"
+	db "app/internal/db"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -11,10 +11,10 @@ import (
 
 type RedisRepo struct {
 	TTL         time.Duration
-	RedisClient flags.RedisClient
+	RedisClient db.RedisClient
 }
 
-func NewRedisRepo(redisClient flags.RedisClient, ttl time.Duration) RedisRepository {
+func NewRedisRepo(redisClient db.RedisClient, ttl time.Duration) RedisRepository {
 	return &RedisRepo{
 		TTL:         ttl,
 		RedisClient: redisClient,

@@ -1,12 +1,14 @@
 package server
 
 import (
+	db "app/internal/db"
 	redisrepo "app/internal/repo"
 	controllers "app/internal/server/controllers"
 	middlewares "app/internal/server/middlewares"
-	flags "app/src/flags"
+	"context"
 	"github.com/gin-gonic/gin"
 	"log"
+	"os"
 	"time"
 )
 
@@ -14,14 +16,24 @@ var (
 	redisRepo redisrepo.RedisRepository
 )
 
-func SetupServer(options *flags.RedisFlags) *gin.Engine {
-	redisClient, err := flags.NewRedisClient(options)
+func init() {
+	ctx := context.Background()
+
+	redisClient, err := db.NewRedisClient(ctx, &db.RedisOptions{
+		Host:     os.Getenv("REDIS_HOST"),
+		Port:     os.Getenv("REDIS_PORT"),
+		Password: os.Getenv("REDIS_PASS"),
+		DB:       os.Getenv("REDIS_DB"),
+	})
 
 	if err != nil {
 		log.Fatalf("failed to create redis client, error is: %s", err)
 	}
 
 	redisRepo = redisrepo.NewRedisRepo(*redisClient, 1*time.Hour)
+}
+
+func SetupServer() *gin.Engine {
 
 	router := gin.Default()
 
