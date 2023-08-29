@@ -11,10 +11,3 @@ RUN echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://
 
 RUN apt update
 RUN apt install redis -y
-
-ARG REDIS_PASSWORD
-ENV REDIS_PASSWORD ${REDIS_PASSWORD}
-
-RUN echo REDIS_PASSWORD
-
-# CMD ["sh", "-c", "redis-server --requirepass $REDIS_PASSWORD"]
