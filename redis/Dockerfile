@@ -1,7 +1,5 @@
 FROM debian:12.1-slim
 
-EXPOSE 6379
-
 RUN apt update
 RUN apt install lsb-release curl gpg -y
 
@@ -11,3 +9,5 @@ RUN echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://
 
 RUN apt update
 RUN apt install redis -y
+
+EXPOSE 6379
