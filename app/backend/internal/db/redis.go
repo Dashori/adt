@@ -7,6 +7,9 @@ import (
 	"strconv"
 	"sync"
 	"time"
+	"crypto/tls"
+	// "crypto/x509"
+	// "os"
 )
 
 type RedisOptions struct {
@@ -14,6 +17,7 @@ type RedisOptions struct {
 	Port     string
 	Password string
 	DB       string
+	TLSConfig tls.Config
 }
 
 type RedisClient struct {
@@ -44,12 +48,34 @@ func NewRedisClient(ctx context.Context, options *RedisOptions) (*RedisClient, e
 }
 
 func getRedisClient(ctx context.Context, options *RedisOptions) (*redis.Client, error) {
+	// cert, err := tls.LoadX509KeyPair("../../../keys/app.crt", "../../../keys/app.key")
+	// if err != nil {
+	// 	return nil, fmt.Errorf("error is: %s", err)
+	// }
+
+	// // Load CA cert
+	// caCert, err := os.ReadFile("../../../keys/ca.crt")
+	// if err != nil {
+	// 	return nil, fmt.Errorf("error is: %s", err)
+	// }
+
+	// caCertPool := x509.NewCertPool()
+	// caCertPool.AppendCertsFromPEM(caCert)
+
 	dbOpt, _ := strconv.Atoi(options.DB)
 
 	opts := redis.Options{
-		Addr:     fmt.Sprintf("%s:%s", options.Host, options.Port),
+		Addr:     fmt.Sprintf("%s:%s", options.Host, "6379"),
 		Password: options.Password,
 		DB:       dbOpt,
+		// TLSConfig: &tls.Config{
+		// 	MinVersion:   tls.VersionTLS12,
+		// 	Certificates: []tls.Certificate{cert},
+		// 	RootCAs:      caCertPool,
+		// },
+		// TLSConfig: &tls.Config{
+		// 	InsecureSkipVerify: true,
+		// },
 	}
 	client := redis.NewClient(&opts)
 
