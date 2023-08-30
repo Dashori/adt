@@ -1,5 +1,62 @@
+## Минималистичное приложение-интерфейс для работы с Redis'ом с проксированием трафика.
 
+### Краткое описание
+В приложении есть 3 эндпоинта, формат ответа — json:
+1. POST /set_key { "[key]": "[val]" } — создать или перезаписать пару ключ-значение/значение по заданному ключу
+2. GET /get_key?key=[key] — вернуть значение по ключу (если ключа нет, то 404)
+3. DELETE /det_key { "key": "[key]" } — удалить пару ключ-значение по ключу.
+
+### Структура проекта
+
+```
+.
+├── .env
+├── .gitignore
+├── app
+│   ├── Dockerfile
+│   └── backend
+├── docker-compose.yaml
+├── nginx
+│   ├── Dockerfile
+│   └── nginx.conf
+├── readme.md
+└── redis
+    └── Dockerfile
+```
+
+## Технические особенности
+
+В качестве базового образа для контейнеров используется debian:12.1-slim.
+
+Трафик к приложению проходит через nginx, порт 8089.
+
+Все переменные окружения (порты, хосты, ~~пароли~~) задаются в файле .env.
+
+
+### Запуск
+
+```
+git clone https://github.com/Dashori/adt.git
+cd adt
+
+docker-compose up -d
+```
+
+Если все успешно, то:
+```
+[+] Running 3/3
+ ⠿ Container adt-redis    Started                                                                                                                                   1.5s
+ ⠿ Container adt-backend  Started                                                                                                                                   1.4s
+ ⠿ Container adt-nginx    Started    
+```
+Более подробную информацию о контейнерах можно получить с помощью команды ```docker ps```.
+
+### Примеры
+
+Запрос на создание пары:
+```
 curl -X POST localhost:8089/set_key -H "Content-Type: application/json" -d '{"start": "test"}' -i
+
 
 HTTP/1.1 200 OK
 Server: nginx/1.22.1
@@ -9,9 +66,13 @@ Content-Length: 75
 Connection: keep-alive
 
 {"message":"Success add key-value into redis","key":"start","value":"test"}
+```
 
+Запрос на получение значения по ключу:
 
+```
 curl -X GET 'localhost:8089/get_key?key=start' -i
+
 
 HTTP/1.1 200 OK
 Server: nginx/1.22.1
@@ -21,9 +82,12 @@ Content-Length: 71
 Connection: keep-alive
 
 {"message":"Success get value from redis","key":"start","value":"test"}
+```
 
-
+Запрос на удаление пары:
+```
 curl -X DELETE localhost:8089/del_key -H "Content-Type: application/json" -d '{"key": "start"}' -i
+
 
 HTTP/1.1 200 OK
 Server: nginx/1.22.1
@@ -33,9 +97,12 @@ Content-Length: 74
 Connection: keep-alive
 
 {"message":"Success delete key-value from redis","key":"start","value":""}   
+```
 
-
+Запрос на получение несуществующего ключа:
+```
 curl -X GET 'localhost:8089/get_key?key=start2' -i
+
 HTTP/1.1 404 Not Found
 Server: nginx/1.22.1
 Date: Mon, 28 Aug 2023 21:09:52 GMT
@@ -44,10 +111,12 @@ Content-Length: 45
 Connection: keep-alive
 
 {"message":"No value with this key in redis"}
+```
 
-
-
+Запрос на несуществующий эндпоинт, до приложения не доходит:
+```
 curl -X POST localhost:8089/update_key -H "Content-Type: application/json" -d '{"start": "test"}' -i
+
 
 HTTP/1.1 403 Forbidden
 Server: nginx/1.22.1
@@ -56,4 +125,5 @@ Content-Type: application/octet-stream
 Content-Length: 9
 Connection: keep-alive
 
-Error uri
+Error request
+```
