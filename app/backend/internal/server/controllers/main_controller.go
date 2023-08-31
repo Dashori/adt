@@ -107,7 +107,13 @@ func DelKey(c *gin.Context) {
 	for _, value := range params {
 		err = redisRepo.Del(value)
 
-		if err != nil {
+
+		if err == redis.Nil{
+			c.AbortWithStatusJSON(http.StatusBadRequest, models.ResponseError{
+				Message: "There is no pair with this key to delete",
+			})
+			return
+		} else if err != nil {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, models.ResponseError{
 				Message: "Failed to delete key-value from redis.",
 				Error:   err.Error(),

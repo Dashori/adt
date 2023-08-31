@@ -70,5 +70,5 @@ func (rc *RedisClient) Get(ctx context.Context, key string) ([]byte, error) {
 }
 
 func (rc *RedisClient) Del(ctx context.Context, key string) error {
-	return rc.Client.Del(ctx, key).Err()
+	return rc.Client.GetDel(ctx, key).Err()
 }

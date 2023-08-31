@@ -26,23 +26,25 @@
 
 ## Технические особенности
 
-В качестве базового образа для контейнеров используется debian:12.1-slim.
+- В качестве базового образа для контейнеров используется debian:12.1-slim
 
-Все переменные окружения (порты, хосты, ~~пароли~~) задаются в файле .env. Все порты можно менять. В app они прокидываются через .env файл, в redis подхватываются при запуске, в nginx с помощью envsubst. Не стала прописывать EXPOSE, хотя можно было для наглядной информации при вызове ```docker ps```.
+- Все переменные окружения (порты, хосты, ~~пароли~~) задаются в файле .env. Все порты можно менять. В app они прокидываются через .env файл, в redis подхватываются при запуске, в nginx с помощью envsubst. Не стала прописывать EXPOSE, хотя можно было для наглядной информации при вызове ```docker ps```.
 
-Трафик к приложению проходит через nginx, порт по умолчанию 8089 (NGINX_EXTERNAL_PORT). Поэтому пользователю локально доступен только он.
+- Трафик к приложению проходит через nginx, порт по умолчанию 8089 (NGINX_EXTERNAL_PORT). Поэтому пользователю локально доступен только он.
  
-Добавлена аутентификация на редисе.
+- Добавлена аутентификация при работе с redis.
+    
+    Для проверки можно зайти в контейнер, то есть выполнить следующие команды:
+    ```
+    docker exec -it adt-redis bash
+    redis-cli
+    set start end
+    ```
+    Будет ошибка: ```(error) NOAUTH Authentication required.```.
+    
+    Для решения можно ввести команду ```auth ${REDIS_PASS}```.
 
-Для проверки можно зайти в контейнер, то есть выполнить следующие команды:
-```
-docker exec -it adt-redis bash
-redis-cli
-set start end
-```
-Будет ошибка: ```(error) NOAUTH Authentication required.```.
-
-Для решения можно ввести команду ``` auth ${REDIS_PASS}```.
+- Redis работает только со строками, соответственно команды SET, GET и GETDEL.
 
 ## Запуск
 
@@ -109,6 +111,22 @@ Connection: keep-alive
 
 {"message":"Success delete key-value from redis","key":"start","value":""}   
 ```
+
+Запрос на удаление пары, которой нет:
+```
+curl -X DELETE localhost:8089/del_key -H "Content-Type: application/json" -d '{"key": "start2"}' -i
+
+
+HTTP/1.1 400 Bad Request
+Server: nginx/1.22.1
+Date: Thu, 31 Aug 2023 13:24:24 GMT
+Content-Type: application/json; charset=utf-8
+Content-Length: 65
+Connection: keep-alive
+
+{"message":"There is no pair with this key to delete","error":""}
+```
+
 
 Запрос на получение несуществующего ключа:
 ```

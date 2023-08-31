@@ -56,9 +56,9 @@ func (rr *RedisRepo) Get(key string) (string, error) {
 func (rr *RedisRepo) Del(key string) error {
 	err := rr.RedisClient.Del(context.Background(), key)
 
-	if err != nil {
+	if err != redis.Nil && err != nil {
 		return fmt.Errorf("failed to delete pair by key %s, error is: %s", key, err)
 	}
 
-	return nil
+	return err
 }
