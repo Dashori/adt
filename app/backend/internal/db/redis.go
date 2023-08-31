@@ -47,7 +47,7 @@ func getRedisClient(ctx context.Context, options *RedisOptions) (*redis.Client, 
 	dbOpt, _ := strconv.Atoi(options.DB)
 
 	opts := redis.Options{
-		Addr:     fmt.Sprintf("%s:%s", options.Host, "6379"),
+		Addr:     fmt.Sprintf("%s:%s", options.Host, options.Port),
 		Password: options.Password,
 		DB:       dbOpt,
 	}

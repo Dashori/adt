@@ -9,5 +9,3 @@ RUN echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://
 
 RUN apt update
 RUN apt install redis -y
-
-EXPOSE 6379
