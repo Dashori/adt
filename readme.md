@@ -62,6 +62,7 @@ docker-compose up -d
  ⠿ Container adt-backend  Started                                                                                                                                   1.4s
  ⠿ Container adt-nginx    Started    
 ```
+
 Более подробную информацию о контейнерах можно получить с помощью команды ```docker ps``` или ```docker logs имя-контейнера```. Логи nginx автоматически появятся в папке logs/nginx.
 
 ### Примеры
